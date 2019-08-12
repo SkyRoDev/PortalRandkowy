@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using PortalRandkowy.API.Data;
+using PortalRandkowy.API.Dtos;
 using PortalRandkowy.API.Models;
 
 namespace PortalRandkowy.API.Controllers
@@ -12,22 +13,22 @@ namespace PortalRandkowy.API.Controllers
         private readonly IAuthRepository _repository;
         public AuthController(IAuthRepository repository)
         {
-            _repository = repository;
-
+            _repository = repository;            
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Regiser(string username,string password){
-            username = username.ToLower();
+        public async Task<IActionResult> Regiser(UserForRegisterDto userForRegisterDto)
+        {
+            userForRegisterDto.Username = userForRegisterDto.Username.ToLower();
 
-            if(await _repository.UserExists(username))
+            if(await _repository.UserExists(userForRegisterDto.Username))
                 return BadRequest("Użytkownik o takiej nazwie już isteniej");
 
             var userToCreate = new User{
-                UserName = username
+                UserName = userForRegisterDto.Username
             };
 
-            var createUser = await _repository.Regiser(userToCreate, password);
+            var createUser = await _repository.Regiser(userToCreate, userForRegisterDto.Password);
 
             return StatusCode(201);
         }
